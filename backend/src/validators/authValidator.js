@@ -29,6 +29,22 @@ function validateRegistration(data) {
     };
 }
 
+function validateLogin(data) {
+    const { email, password } = data;
+
+    if (!email || !password) {
+        return {
+            valid: false,
+            message: "Email and password are required"
+        };
+    }
+
+    return {
+        valid: true
+    };
+}
+
 module.exports = {
-    validateRegistration
+    validateRegistration,
+    validateLogin
 };
