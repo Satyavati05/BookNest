@@ -3,6 +3,8 @@ const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const bookRoutes = require("./routes/bookRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
 const app = express();
 
@@ -11,6 +13,9 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/books", bookRoutes);
+app.use("/api/categories", categoryRoutes);
+
 
 app.get("/", (req, res) => {
     res.json({
