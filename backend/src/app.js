@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const readingListRoutes = require("./routes/readingListRoutes");
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/reading-list", readingListRoutes);
+
 
 
 app.get("/", (req, res) => {
