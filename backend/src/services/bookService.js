@@ -1,6 +1,7 @@
 const {
     createBook,
     getAllBooks,
+    countBooks,
     getBookById,
     updateBook,
     deleteBook
@@ -13,8 +14,15 @@ function addBook(bookData, userId) {
     });
 }
 
-function getBooks() {
-    return getAllBooks();
+function getBooks(filters = {}) {
+    const books = getAllBooks(filters);
+
+    const total = countBooks(filters);
+
+    return {
+        books,
+        total
+    };
 }
 
 function getBook(id) {

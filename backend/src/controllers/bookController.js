@@ -27,12 +27,33 @@ async function createBook(req, res) {
 
 async function getAllBooks(req, res) {
     try {
-        const books = getBooks();
+        const { search = "",
+            category_id = null,
+            page = 1,
+            limit = 10
+        } = req.query;
+        const currentPage = Number(page);
+        const currentLimit = Number(limit);
+
+
+        const result = getBooks({
+            search,
+            category_id,
+            page: currentPage,
+            limit: currentLimit
+        });
+        const totalPages = Math.ceil(result.total / currentLimit);
 
         return res.status(200).json({
             success: true,
-            count: books.length,
-            books
+            count: result.books.length,
+            pagination: {
+                page: currentPage,
+                limit: currentLimit,
+                total: result.total,
+                totalPages
+            },
+            books: result.books
         });
     } catch (error) {
         console.error("Get books error:", error);
@@ -43,6 +64,7 @@ async function getAllBooks(req, res) {
         });
     }
 }
+
 
 async function getSingleBook(req, res) {
     try {
