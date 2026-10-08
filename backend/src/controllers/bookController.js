@@ -32,13 +32,44 @@ async function getAllBooks(req, res) {
             page = 1,
             limit = 10
         } = req.query;
+
         const currentPage = Number(page);
         const currentLimit = Number(limit);
+        if (
+            !Number.isInteger(currentPage) ||
+            currentPage < 1
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Page must be a positive integer"
+            });
+        }
 
+        if (
+            !Number.isInteger(currentLimit) ||
+            currentLimit < 1 ||
+            currentLimit > 100
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Limit must be an integer between 1 and 100"
+            });
+        }
 
+        if 
+        (category_id !== null) {
+            const categoryId = Number(category_id);
+            if (
+                !Number.isInteger(categoryId) || categoryId < 1) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Category ID must be a positive integer"
+                    });
+                }
+            }
         const result = getBooks({
             search,
-            category_id,
+            category_id: category_id === null ? null : Number(category_id),
             page: currentPage,
             limit: currentLimit
         });
