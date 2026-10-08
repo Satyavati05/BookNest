@@ -3,7 +3,9 @@ const express = require("express");
 const {
     createCategory,
     getAllCategories,
-    getSingleCategory
+    getSingleCategory,
+    updateCategory,
+    deleteCategory
 } = require("../controllers/categoryController");
 
 const authenticateToken = require("../middleware/authMiddleware");
@@ -23,6 +25,22 @@ router.post(
     authenticateToken,
     requireAdmin,
     createCategory
+);
+
+// Only admins can update categories
+router.put(
+    "/:id",
+    authenticateToken,
+    requireAdmin,
+    updateCategory
+);
+
+// Only admins can delete categories
+router.delete(
+    "/:id",
+    authenticateToken,
+    requireAdmin,
+    deleteCategory
 );
 
 module.exports = router;

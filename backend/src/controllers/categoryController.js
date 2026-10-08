@@ -1,7 +1,9 @@
 const {
     addCategory,
     getCategories,
-    getCategory
+    getCategory,
+    editCategory,
+    removeCategory
 } = require("../services/categoryService");
 
 async function createCategory(req, res) {
@@ -67,8 +69,68 @@ async function getSingleCategory(req, res) {
     }
 }
 
+async function updateCategory(req, res) {
+    try {
+        const category = editCategory(
+            req.params.id,
+            req.body
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Category updated successfully",
+            category
+        });
+    } catch (error) {
+        console.error("Update category error:", error);
+
+        if (
+            error.message === "Category not found" ||
+            error.message === "Category already exists"
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update category"
+        });
+    }
+}
+
+async function deleteCategory(req, res) {
+    try {
+        const category = removeCategory(req.params.id);
+
+        return res.status(200).json({
+            success: true,
+            message: "Category deleted successfully",
+            category
+        });
+    } catch (error) {
+        console.error("Delete category error:", error);
+
+        if (error.message === "Category not found") {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete category"
+        });
+    }
+}
+
 module.exports = {
     createCategory,
     getAllCategories,
-    getSingleCategory
+    getSingleCategory,
+    updateCategory,
+    deleteCategory
 };

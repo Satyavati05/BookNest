@@ -32,8 +32,31 @@ function getCategoryById(id) {
     `).get(id);
 }
 
+function updateCategory(id, { name, description }) {
+    db.prepare(`
+        UPDATE categories
+        SET
+            name = ?,
+            description = ?
+        WHERE id = ?
+    `).run(name, description, id);
+
+    return getCategoryById(id);
+}
+
+function deleteCategory(id) {
+    const result = db.prepare(`
+        DELETE FROM categories
+        WHERE id = ?
+    `).run(id);
+
+    return result.changes > 0;
+}
+
 module.exports = {
     createCategory,
     getAllCategories,
-    getCategoryById
+    getCategoryById,
+    updateCategory,
+    deleteCategory
 };
