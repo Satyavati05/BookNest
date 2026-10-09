@@ -8,6 +8,7 @@ import ReadingList from "./pages/ReadingList";
 import AdminBooks from "./pages/AdminBooks";
 import AdminCategories from "./pages/AdminCategories";
 import BookDetails from "./pages/BookDetails";
+import Profile from "./pages/Profile";
 
 function App() {
     const token = localStorage.getItem("token");
@@ -23,7 +24,10 @@ function App() {
                     <Link to="/books">Discover Books</Link>
 
                     {token && (
+                        <>
                         <Link to="/reading-list">My Reading List</Link>
+                        <Link to="/profile">My Profile</Link>
+                        </>
                     )}
 
                     {!token && (
@@ -59,6 +63,7 @@ function App() {
                     <Route path="/reading-list" element={<ReadingList />} />
                     <Route path="/admin/books" element={<AdminBooks />} />
                     <Route path="/admin/categories" element={<AdminCategories />} />
+                    <Route path="/profile" element={<Profile />} />
                 </Routes>
             </main>
             
