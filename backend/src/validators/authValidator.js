@@ -1,5 +1,6 @@
+
 function validateRegistration(data) {
-    const { username, email, password, full_name } = data;
+    const { username, email, password, full_name } = data || {};
 
     if (!username || !email || !password || !full_name) {
         return {
@@ -30,7 +31,7 @@ function validateRegistration(data) {
 }
 
 function validateLogin(data) {
-    const { email, password } = data;
+    const { email, password } = data || {};
 
     if (!email || !password) {
         return {
