@@ -1,3 +1,4 @@
+
 const db = require("../config/database");
 
 function createBook({
@@ -63,11 +64,10 @@ function getAllBooks({
         `;
 
         const searchPattern = `%${search}%`;
-
         params.push(searchPattern, searchPattern);
     }
 
-    if (category_id) {
+    if (category_id !== null && category_id !== undefined) {
         query += `
             AND category_id = ?
         `;
@@ -81,7 +81,6 @@ function getAllBooks({
     `;
 
     const offset = (page - 1) * limit;
-
     params.push(limit, offset);
 
     return db.prepare(query).all(...params);
@@ -108,11 +107,10 @@ function countBooks({
         `;
 
         const searchPattern = `%${search}%`;
-
         params.push(searchPattern, searchPattern);
     }
 
-    if (category_id) {
+    if (category_id !== null && category_id !== undefined) {
         query += `
             AND category_id = ?
         `;

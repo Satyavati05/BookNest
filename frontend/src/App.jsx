@@ -1,5 +1,5 @@
 
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -12,6 +12,13 @@ import Profile from "./pages/Profile";
 
 function App() {
     const token = localStorage.getItem("token");
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+        user = null;
+    }
+    const isAdmin = Boolean(token && Number(user?.is_admin) === 1);
 
     return (
         <BrowserRouter>
@@ -20,38 +27,40 @@ function App() {
                     BookNest<span>.</span>
                 </Link>
 
-                <nav className="nav-links">
-                    <Link to="/books">Discover Books</Link>
-
-                    {token && (
+                <nav className="nav-links"><Link to="/books">Discover Books</Link>
+                {token && (
+                    <>
+                    <Link to="/reading-list">My Reading List</Link>
+                    <Link to="/profile">My Profile</Link>
+                    {isAdmin && (
                         <>
-                        <Link to="/reading-list">My Reading List</Link>
-                        <Link to="/profile">My Profile</Link>
+                        <Link to="/admin/books">Manage Books</Link>
+                        <Link to="/admin/categories">Manage Categories</Link>
                         </>
                     )}
-
-                    {!token && (
-                        <>
-                            <Link to="/login">Login</Link>
-                            <Link to="/register" className="nav-register">
-                                Get Started
-                            </Link>
-                        </>
-                    )}
-
-                    {token && (
-                        <button
-                            onClick={() => {
-                                localStorage.removeItem("token");
-                                localStorage.removeItem("user");
-                                window.location.href = "/login";
-                            }}
-                        >
-                            Logout
+                    </>
+                )}
+                {!token && (
+                    <>
+                    <Link to="/login">Login</Link>
+                    <Link to="/register" className="nav-register">
+                    Get Started
+                    </Link>
+                    </>
+                )}
+                {token && (
+                    <button
+                    onClick={() => {
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("user");
+                        window.location.href = "/login";
+                    }}
+                    >
+                        Logout
                         </button>
                     )}
-                </nav>
-            </header>
+                    </nav>
+                    </header>
 
             <main className="page-container">
                 <Routes>
@@ -61,8 +70,18 @@ function App() {
                     <Route path="/books" element={<Books />} />
                     <Route path="/books/:id" element={<BookDetails />} />
                     <Route path="/reading-list" element={<ReadingList />} />
-                    <Route path="/admin/books" element={<AdminBooks />} />
-                    <Route path="/admin/categories" element={<AdminCategories />} />
+                    <Route
+                    path="/admin/books"
+                    element={
+                        isAdmin ? <AdminBooks /> : <Navigate to="/books" replace />
+                    }
+                    />
+                    <Route
+                    path="/admin/categories"
+                    element={
+                        isAdmin ? <AdminCategories /> : <Navigate to="/books" replace />
+                        }
+                        />
                     <Route path="/profile" element={<Profile />} />
                 </Routes>
             </main>
