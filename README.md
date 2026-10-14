@@ -340,6 +340,30 @@ Vite generates the production build in the `dist` directory.
 
 [GitHub – Satyavati05](https://github.com/Satyavati05)
 
+
+## Task 4: Testing and Quality Assurance
+
+Completed testing of BookNest, including automated backend tests,
+API validation, authentication and authorization, reading-list
+functionality, and responsive UI checks.
+
+- Automated tests: 20 passed, 0 failed
+- Manual API and role-based access testing
+- Reading-list persistence and duplicate prevention
+- Mobile UI inspection at 375 × 812 px
+
+## Internship Tasks & Documentation
+
+### Task 3 — BookNest Project Development
+Project development documentation and deliverables.
+
+[View Task 3 Report](https://canva.link/k8tv7763ileepps)
+
+### Task 4 — Testing & Quality Assurance
+Documentation of automated backend tests, API validation, authentication and authorization checks, reading-list functionality, and responsive UI testing.
+
+[View Task 4 Report](https://canva.link/cpcfbt6zma1z893)
+
 ---
 
 *BookNest was built as a hands-on full-stack learning project focused on developing practical backend, frontend, database, and API development skills.*
