@@ -1,56 +1,52 @@
-const db = require("../config/database");
+﻿const pool = require("../config/database");
 
-function createCategory({ name, description }) {
-    const result = db.prepare(`
-        INSERT INTO categories (
-            name,
-            description
-        )
-        VALUES (?, ?)
-    `).run(name, description);
+async function createCategory({ name, description }) {
+    const result = await pool.query(
+        `INSERT INTO categories (name, description)
+         VALUES ($1, $2)
+         RETURNING *`,
+        [name, description ?? null]
+    );
 
-    return db.prepare(`
-        SELECT *
-        FROM categories
-        WHERE id = ?
-    `).get(result.lastInsertRowid);
+    return result.rows[0];
 }
 
-function getAllCategories() {
-    return db.prepare(`
-        SELECT *
-        FROM categories
-        ORDER BY name ASC
-    `).all();
+async function getAllCategories() {
+    const result = await pool.query(
+        `SELECT * FROM categories ORDER BY name ASC`
+    );
+
+    return result.rows;
 }
 
-function getCategoryById(id) {
-    return db.prepare(`
-        SELECT *
-        FROM categories
-        WHERE id = ?
-    `).get(id);
+async function getCategoryById(id) {
+    const result = await pool.query(
+        `SELECT * FROM categories WHERE id = $1`,
+        [id]
+    );
+
+    return result.rows[0];
 }
 
-function updateCategory(id, { name, description }) {
-    db.prepare(`
-        UPDATE categories
-        SET
-            name = ?,
-            description = ?
-        WHERE id = ?
-    `).run(name, description, id);
+async function updateCategory(id, { name, description }) {
+    const result = await pool.query(
+        `UPDATE categories
+         SET name = $1, description = $2
+         WHERE id = $3
+         RETURNING *`,
+        [name, description ?? null, id]
+    );
 
-    return getCategoryById(id);
+    return result.rows[0];
 }
 
-function deleteCategory(id) {
-    const result = db.prepare(`
-        DELETE FROM categories
-        WHERE id = ?
-    `).run(id);
+async function deleteCategory(id) {
+    const result = await pool.query(
+        `DELETE FROM categories WHERE id = $1`,
+        [id]
+    );
 
-    return result.changes > 0;
+    return result.rowCount > 0;
 }
 
 module.exports = {

@@ -1,63 +1,52 @@
-const bcrypt = require("bcryptjs");
-const db = require("../config/database");
-
+﻿const bcrypt = require("bcryptjs");
+const pool = require("../config/database");
 const jwt = require("jsonwebtoken");
 
 async function registerUser({ username, email, password, full_name }) {
-    // 1. Check whether username or email already exists
-    const existingUser = db
-        .prepare(`
-            SELECT id
-            FROM users
-            WHERE username = ? OR email = ?
-        `)
-        .get(username, email);
+    const existingUser = await pool.query(
+        `SELECT id FROM users
+         WHERE LOWER(username) = LOWER($1)
+            OR LOWER(email) = LOWER($2)`,
+        [username, email]
+    );
 
-    if (existingUser) {
+    if (existingUser.rowCount > 0) {
         throw new Error("Username or email already exists");
     }
 
-    // 2. Hash the password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // 3. Save the user
-    const result = db
-        .prepare(`
-            INSERT INTO users (
-                username,
-                email,
-                password_hash,
-                full_name
-            )
-            VALUES (?, ?, ?, ?)
-        `)
-        .run(username, email, passwordHash, full_name);
+    const result = await pool.query(
+        `INSERT INTO users (username, email, password_hash, full_name)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, username, email, full_name, is_admin`,
+        [username, email, passwordHash, full_name]
+    );
 
-    // 4. Return the newly created user's ID
+    const user = result.rows[0];
+
     return {
-        id: result.lastInsertRowid,
-        username,
-        email,
-        full_name
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        full_name: user.full_name
     };
 }
 
 async function loginUser({ email, password }) {
-    // 1. Find the user by email
-    const user = db
-        .prepare(`
-            SELECT *
-            FROM users
-            WHERE email = ?
-        `)
-        .get(email);
+    const result = await pool.query(
+        `SELECT id, username, email, password_hash, full_name, is_admin
+         FROM users
+         WHERE LOWER(email) = LOWER($1)`,
+        [email]
+    );
 
-    // 2. Check whether the user exists
+    const user = result.rows[0];
+
     if (!user) {
         throw new Error("Invalid email or password");
     }
 
-    // 3. Compare the entered password with the stored hash
     const passwordMatch = await bcrypt.compare(
         password,
         user.password_hash
@@ -67,32 +56,30 @@ async function loginUser({ email, password }) {
         throw new Error("Invalid email or password");
     }
 
-    const token = jwt.sign(
-    {
-        id: user.id,
-        email: user.email,
-        is_admin: user.is_admin
-    },
-    process.env.JWT_SECRET,
-    {
-        expiresIn: "1h"
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is missing from the environment");
     }
-);
 
-    // 4. Return user information
+    const token = jwt.sign(
+        {
+            id: user.id,
+            email: user.email,
+            is_admin: user.is_admin
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+    );
+
     return {
-    user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        full_name: user.full_name,
-        is_admin: user.is_admin
-    },
-    token
-};
+        user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            full_name: user.full_name,
+            is_admin: user.is_admin
+        },
+        token
+    };
 }
 
-module.exports = {
-    registerUser,
-    loginUser
-};
+module.exports = { registerUser, loginUser };

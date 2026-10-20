@@ -1,4 +1,4 @@
-const {
+﻿const {
     createCategory,
     getAllCategories,
     getCategoryById,
@@ -6,8 +6,10 @@ const {
     deleteCategory
 } = require("../models/categoryModel");
 
-function addCategory({ name, description }) {
-    const existingCategory = getAllCategories().find(
+async function addCategory({ name, description }) {
+    const categories = await getAllCategories();
+
+    const existingCategory = categories.find(
         category => category.name.toLowerCase() === name.toLowerCase()
     );
 
@@ -15,28 +17,27 @@ function addCategory({ name, description }) {
         throw new Error("Category already exists");
     }
 
-    return createCategory({
-        name,
-        description
-    });
+    return await createCategory({ name, description });
 }
 
-function getCategories() {
-    return getAllCategories();
+async function getCategories() {
+    return await getAllCategories();
 }
 
-function getCategory(id) {
-    return getCategoryById(id);
+async function getCategory(id) {
+    return await getCategoryById(id);
 }
 
-function editCategory(id, { name, description }) {
-    const existingCategory = getCategoryById(id);
+async function editCategory(id, { name, description }) {
+    const existingCategory = await getCategoryById(id);
 
     if (!existingCategory) {
         throw new Error("Category not found");
     }
 
-    const duplicateCategory = getAllCategories().find(
+    const categories = await getAllCategories();
+
+    const duplicateCategory = categories.find(
         category =>
             category.id !== Number(id) &&
             category.name.toLowerCase() === name.toLowerCase()
@@ -46,20 +47,17 @@ function editCategory(id, { name, description }) {
         throw new Error("Category already exists");
     }
 
-    return updateCategory(id, {
-        name,
-        description
-    });
+    return await updateCategory(id, { name, description });
 }
 
-function removeCategory(id) {
-    const existingCategory = getCategoryById(id);
+async function removeCategory(id) {
+    const existingCategory = await getCategoryById(id);
 
     if (!existingCategory) {
         throw new Error("Category not found");
     }
 
-    deleteCategory(id);
+    await deleteCategory(id);
 
     return existingCategory;
 }

@@ -8,7 +8,7 @@ const {
 
 async function createBook(req, res) {
     try {
-        const book = addBook(req.body, req.user.id);
+        const book = await addBook(req.body, req.user.id);
 
         return res.status(201).json({
             success: true,
@@ -18,7 +18,9 @@ async function createBook(req, res) {
     } catch (error) {
         console.error("Create book error:", error);
 
-        return res.status(400).json({
+        const status = error.message === "Category not found" ? 404 : 400;
+
+        return res.status(status).json({
             success: false,
             message: error.message
         });
@@ -27,7 +29,8 @@ async function createBook(req, res) {
 
 async function getAllBooks(req, res) {
     try {
-        const { search = "",
+        const {
+            search = "",
             category_id = null,
             page = 1,
             limit = 10
@@ -35,10 +38,8 @@ async function getAllBooks(req, res) {
 
         const currentPage = Number(page);
         const currentLimit = Number(limit);
-        if (
-            !Number.isInteger(currentPage) ||
-            currentPage < 1
-        ) {
+
+        if (!Number.isInteger(currentPage) || currentPage < 1) {
             return res.status(400).json({
                 success: false,
                 message: "Page must be a positive integer"
@@ -56,23 +57,26 @@ async function getAllBooks(req, res) {
             });
         }
 
-        if 
-        (category_id !== null) {
-            const categoryId = Number(category_id);
-            if (
-                !Number.isInteger(categoryId) || categoryId < 1) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "Category ID must be a positive integer"
-                    });
-                }
+        let categoryId = null;
+
+        if (category_id !== null) {
+            categoryId = Number(category_id);
+
+            if (!Number.isInteger(categoryId) || categoryId < 1) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Category ID must be a positive integer"
+                });
             }
-        const result = getBooks({
+        }
+
+        const result = await getBooks({
             search,
-            category_id: category_id === null ? null : Number(category_id),
+            category_id: categoryId,
             page: currentPage,
             limit: currentLimit
         });
+
         const totalPages = Math.ceil(result.total / currentLimit);
 
         return res.status(200).json({
@@ -96,10 +100,9 @@ async function getAllBooks(req, res) {
     }
 }
 
-
 async function getSingleBook(req, res) {
     try {
-        const book = getBook(req.params.id);
+        const book = await getBook(req.params.id);
 
         if (!book) {
             return res.status(404).json({
@@ -124,7 +127,7 @@ async function getSingleBook(req, res) {
 
 async function updateBook(req, res) {
     try {
-        const book = editBook(req.params.id, req.body);
+        const book = await editBook(req.params.id, req.body);
 
         return res.status(200).json({
             success: true,
@@ -141,6 +144,13 @@ async function updateBook(req, res) {
             });
         }
 
+        if (error.message === "Category not found") {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+
         return res.status(400).json({
             success: false,
             message: error.message
@@ -150,7 +160,7 @@ async function updateBook(req, res) {
 
 async function deleteBook(req, res) {
     try {
-        const book = removeBook(req.params.id);
+        const book = await removeBook(req.params.id);
 
         return res.status(200).json({
             success: true,
@@ -169,7 +179,7 @@ async function deleteBook(req, res) {
 
         return res.status(400).json({
             success: false,
-            message: error.message
+            message: "Unable to delete book. It may be referenced by a reading-list entry."
         });
     }
 }

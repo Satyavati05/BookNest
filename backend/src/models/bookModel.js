@@ -1,7 +1,6 @@
+const pool = require("../config/database");
 
-const db = require("../config/database");
-
-function createBook({
+async function createBook({
     title,
     author,
     isbn,
@@ -11,125 +10,89 @@ function createBook({
     category_id,
     added_by_user_id
 }) {
-    const result = db.prepare(`
-        INSERT INTO books (
+    const result = await pool.query(
+        `INSERT INTO books (
+            title, author, isbn, description, cover_image_url,
+            publication_year, category_id, added_by_user_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *`,
+        [
             title,
             author,
-            isbn,
-            description,
-            cover_image_url,
-            publication_year,
+            isbn ?? null,
+            description ?? null,
+            cover_image_url ?? null,
+            publication_year ?? null,
             category_id,
             added_by_user_id
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-        title,
-        author,
-        isbn,
-        description,
-        cover_image_url,
-        publication_year,
-        category_id,
-        added_by_user_id
+        ]
     );
 
-    return db.prepare(`
-        SELECT *
-        FROM books
-        WHERE id = ?
-    `).get(result.lastInsertRowid);
+    return result.rows[0];
 }
 
-function getAllBooks({
+async function getAllBooks({
     search = "",
     category_id = null,
     page = 1,
     limit = 10
 } = {}) {
-    let query = `
-        SELECT *
-        FROM books
-        WHERE 1 = 1
-    `;
-
+    let query = `SELECT * FROM books WHERE 1 = 1`;
     const params = [];
 
     if (search) {
-        query += `
-            AND (
-                title LIKE ?
-                OR author LIKE ?
-            )
-        `;
-
-        const searchPattern = `%${search}%`;
-        params.push(searchPattern, searchPattern);
+        params.push(`%${search}%`);
+        query += ` AND (title ILIKE $${params.length} OR author ILIKE $${params.length})`;
     }
 
     if (category_id !== null && category_id !== undefined) {
-        query += `
-            AND category_id = ?
-        `;
-
         params.push(category_id);
+        query += ` AND category_id = $${params.length}`;
     }
 
-    query += `
-        ORDER BY created_at DESC
-        LIMIT ? OFFSET ?
-    `;
+    const safePage = Math.max(1, Number.parseInt(page, 10) || 1);
+    const safeLimit = Math.min(100, Math.max(1, Number.parseInt(limit, 10) || 10));
+    const offset = (safePage - 1) * safeLimit;
 
-    const offset = (page - 1) * limit;
-    params.push(limit, offset);
+    params.push(safeLimit, offset);
+    query += ` ORDER BY created_at DESC LIMIT $${params.length - 1} OFFSET $${params.length}`;
 
-    return db.prepare(query).all(...params);
+    const result = await pool.query(query, params);
+    return result.rows;
 }
 
-function countBooks({
+async function countBooks({
     search = "",
     category_id = null
 } = {}) {
-    let query = `
-        SELECT COUNT(*) AS total
-        FROM books
-        WHERE 1 = 1
-    `;
-
+    let query = `SELECT COUNT(*) AS total FROM books WHERE 1 = 1`;
     const params = [];
 
     if (search) {
-        query += `
-            AND (
-                title LIKE ?
-                OR author LIKE ?
-            )
-        `;
-
-        const searchPattern = `%${search}%`;
-        params.push(searchPattern, searchPattern);
+        params.push(`%${search}%`);
+        query += ` AND (title ILIKE $${params.length} OR author ILIKE $${params.length})`;
     }
 
     if (category_id !== null && category_id !== undefined) {
-        query += `
-            AND category_id = ?
-        `;
-
         params.push(category_id);
+        query += ` AND category_id = $${params.length}`;
     }
 
-    return db.prepare(query).get(...params).total;
+    const result = await pool.query(query, params);
+    return Number(result.rows[0].total);
 }
 
-function getBookById(id) {
-    return db.prepare(`
-        SELECT *
-        FROM books
-        WHERE id = ?
-    `).get(id);
+async function getBookById(id) {
+    const result = await pool.query(
+        `SELECT * FROM books WHERE id = $1`,
+        [id]
+    );
+
+    return result.rows[0];
 }
 
-function updateBook(id, {
+async function updateBook(id, {
     title,
     author,
     isbn,
@@ -138,39 +101,40 @@ function updateBook(id, {
     publication_year,
     category_id
 }) {
-    db.prepare(`
-        UPDATE books
-        SET
-            title = ?,
-            author = ?,
-            isbn = ?,
-            description = ?,
-            cover_image_url = ?,
-            publication_year = ?,
-            category_id = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-    `).run(
-        title,
-        author,
-        isbn,
-        description,
-        cover_image_url,
-        publication_year,
-        category_id,
-        id
+    const result = await pool.query(
+        `UPDATE books
+         SET title = $1,
+             author = $2,
+             isbn = $3,
+             description = $4,
+             cover_image_url = $5,
+             publication_year = $6,
+             category_id = $7,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $8
+         RETURNING *`,
+        [
+            title,
+            author,
+            isbn ?? null,
+            description ?? null,
+            cover_image_url ?? null,
+            publication_year ?? null,
+            category_id,
+            id
+        ]
     );
 
-    return getBookById(id);
+    return result.rows[0];
 }
 
-function deleteBook(id) {
-    const result = db.prepare(`
-        DELETE FROM books
-        WHERE id = ?
-    `).run(id);
+async function deleteBook(id) {
+    const result = await pool.query(
+        `DELETE FROM books WHERE id = $1`,
+        [id]
+    );
 
-    return result.changes > 0;
+    return result.rowCount > 0;
 }
 
 module.exports = {

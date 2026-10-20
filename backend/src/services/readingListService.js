@@ -1,3 +1,4 @@
+
 const readingListModel = require("../models/readingListModel");
 const bookModel = require("../models/bookModel");
 
@@ -7,39 +8,39 @@ const VALID_STATUSES = [
   "READ",
 ];
 
-const addToReadingList = (
+const addToReadingList = async (
   userId,
   bookId,
   status,
   rating = null,
   review = null
 ) => {
-  // Validate status
   if (!VALID_STATUSES.includes(status)) {
-  throw new Error(
-    "Invalid status. Use WANT_TO_READ, CURRENTLY_READING, or READ."
-  );
-}
+    throw new Error(
+      "Invalid status. Use WANT_TO_READ, CURRENTLY_READING, or READ."
+    );
+  }
 
-  // Check whether the book exists
-  const book = bookModel.getBookById(bookId);
+  // Check whether the book exists.
+  const book = await bookModel.getBookById(bookId);
 
   if (!book) {
     throw new Error("Book not found");
   }
 
-  // Prevent duplicate entries
-  const existingItems = readingListModel.getReadingListByUserId(userId);
+  // Prevent duplicate entries.
+  const existingItems =
+    await readingListModel.getReadingListByUserId(userId);
 
   const alreadyAdded = existingItems.find(
-    (item) => item.book_id === bookId
+    (item) => Number(item.book_id) === Number(bookId)
   );
 
   if (alreadyAdded) {
     throw new Error("Book is already in your reading list");
   }
 
-  return readingListModel.createReadingListItem(
+  return await readingListModel.createReadingListItem(
     userId,
     bookId,
     status,
@@ -48,11 +49,11 @@ const addToReadingList = (
   );
 };
 
-const getMyReadingList = (userId) => {
-  return readingListModel.getReadingListByUserId(userId);
+const getMyReadingList = async (userId) => {
+  return await readingListModel.getReadingListByUserId(userId);
 };
 
-const updateReadingListItem = (
+const updateReadingListItem = async (
   userId,
   itemId,
   status,
@@ -60,23 +61,24 @@ const updateReadingListItem = (
   review = null
 ) => {
   if (!VALID_STATUSES.includes(status)) {
-  throw new Error(
-    "Invalid status. Use WANT_TO_READ, CURRENTLY_READING, or READ."
-  );
-}
+    throw new Error(
+      "Invalid status. Use WANT_TO_READ, CURRENTLY_READING, or READ."
+    );
+  }
 
-  const item = readingListModel.getReadingListItemById(itemId);
+  const item =
+    await readingListModel.getReadingListItemById(itemId);
 
   if (!item) {
     throw new Error("Reading list item not found");
   }
 
-  // Make sure the item belongs to the logged-in user
-  if (item.user_id !== userId) {
+  // Ensure the item belongs to the logged-in user.
+  if (Number(item.user_id) !== Number(userId)) {
     throw new Error("You are not authorized to update this item");
   }
 
-  return readingListModel.updateReadingListItem(
+  return await readingListModel.updateReadingListItem(
     itemId,
     status,
     rating,
@@ -84,19 +86,20 @@ const updateReadingListItem = (
   );
 };
 
-const removeFromReadingList = (userId, itemId) => {
-  const item = readingListModel.getReadingListItemById(itemId);
+const removeFromReadingList = async (userId, itemId) => {
+  const item =
+    await readingListModel.getReadingListItemById(itemId);
 
   if (!item) {
     throw new Error("Reading list item not found");
   }
 
-  // Make sure the item belongs to the logged-in user
-  if (item.user_id !== userId) {
+  // Ensure the item belongs to the logged-in user.
+  if (Number(item.user_id) !== Number(userId)) {
     throw new Error("You are not authorized to delete this item");
   }
 
-  readingListModel.deleteReadingListItem(itemId);
+  await readingListModel.deleteReadingListItem(itemId);
 
   return item;
 };

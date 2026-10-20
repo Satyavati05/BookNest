@@ -8,7 +8,7 @@ const {
 
 async function createCategory(req, res) {
     try {
-        const category = addCategory(req.body);
+        const category = await addCategory(req.body);
 
         return res.status(201).json({
             success: true,
@@ -27,7 +27,7 @@ async function createCategory(req, res) {
 
 async function getAllCategories(req, res) {
     try {
-        const categories = getCategories();
+        const categories = await getCategories();
 
         return res.status(200).json({
             success: true,
@@ -46,7 +46,7 @@ async function getAllCategories(req, res) {
 
 async function getSingleCategory(req, res) {
     try {
-        const category = getCategory(req.params.id);
+        const category = await getCategory(req.params.id);
 
         if (!category) {
             return res.status(404).json({
@@ -71,10 +71,7 @@ async function getSingleCategory(req, res) {
 
 async function updateCategory(req, res) {
     try {
-        const category = editCategory(
-            req.params.id,
-            req.body
-        );
+        const category = await editCategory(req.params.id, req.body);
 
         return res.status(200).json({
             success: true,
@@ -84,10 +81,14 @@ async function updateCategory(req, res) {
     } catch (error) {
         console.error("Update category error:", error);
 
-        if (
-            error.message === "Category not found" ||
-            error.message === "Category already exists"
-        ) {
+        if (error.message === "Category not found") {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        if (error.message === "Category already exists") {
             return res.status(400).json({
                 success: false,
                 message: error.message
@@ -103,7 +104,7 @@ async function updateCategory(req, res) {
 
 async function deleteCategory(req, res) {
     try {
-        const category = removeCategory(req.params.id);
+        const category = await removeCategory(req.params.id);
 
         return res.status(200).json({
             success: true,
@@ -122,7 +123,7 @@ async function deleteCategory(req, res) {
 
         return res.status(500).json({
             success: false,
-            message: "Failed to delete category"
+            message: "Failed to delete category. It may be used by existing books."
         });
     }
 }
