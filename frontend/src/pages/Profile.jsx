@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../services/api";
 
 function Profile() {
@@ -8,13 +8,13 @@ function Profile() {
     const [form, setForm] = useState({
         full_name: "",
         username: "",
-        email: ""
+        email: "",
     });
 
     const [passwordForm, setPasswordForm] = useState({
         currentPassword: "",
         newPassword: "",
-        confirmPassword: ""
+        confirmPassword: "",
     });
 
     const [loading, setLoading] = useState(true);
@@ -28,43 +28,49 @@ function Profile() {
     const [passwordError, setPasswordError] = useState("");
     const [passwordMessage, setPasswordMessage] = useState("");
 
-    const authConfig = {
+    const getAuthConfig = useCallback(() => ({
         headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    }), []);
+
+    const loadProfile = useCallback(async () => {
+        try {
+            setError("");
+
+            const response = await api.get("/profile", getAuthConfig());
+            const profile = response.data.user;
+
+            setUser(profile);
+            setForm({
+                full_name: profile.full_name || "",
+                username: profile.username || "",
+                email: profile.email || "",
+            });
+        } catch (err) {
+            setError(
+                err.response?.data?.message ||
+                "Unable to load your profile."
+            );
+        } finally {
+            setLoading(false);
         }
-    };
+    }, [getAuthConfig]);
 
     useEffect(() => {
-        async function loadProfile() {
-            try {
-                const response = await api.get("/profile", authConfig);
-                const profile = response.data.user;
+        const timerId = setTimeout(() => {
+            loadProfile();
+        }, 0);
 
-                setUser(profile);
-                setForm({
-                    full_name: profile.full_name || "",
-                    username: profile.username || "",
-                    email: profile.email || ""
-                });
-            } catch (err) {
-                setError(
-                    err.response?.data?.message ||
-                    "Unable to load your profile."
-                );
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        loadProfile();
-    }, []);
+        return () => clearTimeout(timerId);
+    }, [loadProfile]);
 
     function handleChange(event) {
         const { name, value } = event.target;
 
         setForm((previous) => ({
             ...previous,
-            [name]: value
+            [name]: value,
         }));
     }
 
@@ -73,7 +79,7 @@ function Profile() {
 
         setPasswordForm((previous) => ({
             ...previous,
-            [name]: value
+            [name]: value,
         }));
     }
 
@@ -82,13 +88,26 @@ function Profile() {
         setError("");
         setMessage("");
 
+        const fullName = form.full_name.trim();
+        const username = form.username.trim();
+        const email = form.email.trim();
+
+        if (!fullName || !username || !email) {
+            setError("Please complete all profile fields.");
+            return;
+        }
+
         try {
             setSaving(true);
 
             const response = await api.put(
                 "/profile",
-                form,
-                authConfig
+                {
+                    full_name: fullName,
+                    username,
+                    email,
+                },
+                getAuthConfig()
             );
 
             const updatedUser = response.data.user;
@@ -97,7 +116,7 @@ function Profile() {
             setForm({
                 full_name: updatedUser.full_name || "",
                 username: updatedUser.username || "",
-                email: updatedUser.email || ""
+                email: updatedUser.email || "",
             });
 
             setEditing(false);
@@ -138,9 +157,9 @@ function Profile() {
                 "/profile/password",
                 {
                     currentPassword: passwordForm.currentPassword,
-                    newPassword: passwordForm.newPassword
+                    newPassword: passwordForm.newPassword,
                 },
-                authConfig
+                getAuthConfig()
             );
 
             setPasswordMessage(
@@ -150,7 +169,7 @@ function Profile() {
             setPasswordForm({
                 currentPassword: "",
                 newPassword: "",
-                confirmPassword: ""
+                confirmPassword: "",
             });
 
             setShowPasswordForm(false);
@@ -168,7 +187,7 @@ function Profile() {
         setForm({
             full_name: user.full_name || "",
             username: user.username || "",
-            email: user.email || ""
+            email: user.email || "",
         });
 
         setEditing(false);
@@ -180,7 +199,7 @@ function Profile() {
         setPasswordForm({
             currentPassword: "",
             newPassword: "",
-            confirmPassword: ""
+            confirmPassword: "",
         });
 
         setShowPasswordForm(false);
@@ -221,6 +240,7 @@ function Profile() {
                         value={form.full_name}
                         onChange={handleChange}
                         autoComplete="name"
+                        maxLength={100}
                         required
                     />
 
@@ -231,6 +251,7 @@ function Profile() {
                         value={form.username}
                         onChange={handleChange}
                         autoComplete="username"
+                        maxLength={50}
                         required
                     />
 
@@ -286,7 +307,9 @@ function Profile() {
 
             <div className="profile-card password-section">
                 <h2>Security</h2>
-                <p>Keep your BookNest account secure by updating your password.</p>
+                <p>
+                    Keep your BookNest account secure by updating your password.
+                </p>
 
                 {passwordMessage && (
                     <p role="status">{passwordMessage}</p>

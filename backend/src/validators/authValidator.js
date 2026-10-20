@@ -1,6 +1,11 @@
 
 function validateRegistration(data) {
-    const { username, email, password, full_name } = data || {};
+    const {
+        username,
+        email,
+        password,
+        full_name
+    } = data || {};
 
     if (!username || !email || !password || !full_name) {
         return {

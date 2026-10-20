@@ -1,19 +1,16 @@
-
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 
 function Books() {
     const [books, setBooks] = useState([]);
     const [categories, setCategories] = useState([]);
-
     const [search, setSearch] = useState("");
     const [categoryId, setCategoryId] = useState("");
-
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    async function fetchBooks() {
+    const fetchBooks = useCallback(async () => {
         try {
             setLoading(true);
             setError("");
@@ -30,8 +27,7 @@ function Books() {
 
             const response = await api.get("/books", { params });
             setBooks(response.data.books ?? []);
-        }
-        catch (error) {
+        } catch (error) {
             setError(
                 error.response?.data?.message ||
                 "Failed to load books. Please try again."
@@ -39,39 +35,43 @@ function Books() {
         } finally {
             setLoading(false);
         }
-    }
+    }, [search, categoryId]);
 
-    async function fetchCategories() {
+    const fetchCategories = useCallback(async () => {
         try {
             const response = await api.get("/categories");
             setCategories(response.data.categories ?? []);
         } catch (error) {
             console.error("Failed to load categories:", error);
         }
-    }
-
-    useEffect(() => {
-        fetchCategories();
-
     }, []);
 
     useEffect(() => {
-        fetchBooks();
-    }, [categoryId]);
+        const timerId = setTimeout(() => {
+            fetchCategories();
+        }, 0);
+
+        return () => clearTimeout(timerId);
+    }, [fetchCategories]);
+
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            fetchBooks();
+        }, 0);
+
+        return () => clearTimeout(timerId);
+    }, [fetchBooks]);
 
     function handleSearch(event) {
         event.preventDefault();
         fetchBooks();
     }
 
-
     return (
         <div className="books-page">
             <section className="books-hero">
                 <p className="eyebrow">A READING SPACE BY SATYAVATI DEVI</p>
-
                 <h1>Find your next great read.</h1>
-
                 <p className="hero-description">
                     Explore stories, discover new ideas, and build a reading
                     list that inspires you.
@@ -85,7 +85,6 @@ function Books() {
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                     />
-
                     <button type="submit" disabled={loading}>
                         Search
                     </button>
@@ -109,12 +108,8 @@ function Books() {
                             }
                         >
                             <option value="">All Categories</option>
-
                             {categories.map((category) => (
-                                <option
-                                    key={category.id}
-                                    value={category.id}
-                                >
+                                <option key={category.id} value={category.id}>
                                     {category.name}
                                 </option>
                             ))}
@@ -184,7 +179,6 @@ function Books() {
                                             {book.title}
                                         </Link>
                                     </h3>
-
                                     <p className="book-author">
                                         by {book.author}
                                     </p>

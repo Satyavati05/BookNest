@@ -36,7 +36,10 @@ function AdminCategories() {
   }
 
   useEffect(() => {
-    loadCategories();
+    const timerId = setTimeout(() => {
+      loadCategories();
+    }, 0);
+    return () => clearTimeout(timerId);
   }, []);
 
   function resetForm() {
