@@ -1,59 +1,51 @@
 # BookNest 📚
 
-BookNest is a full-stack book management and discovery platform where users can browse books, search and filter by category, and maintain a personal reading list.
+BookNest is a full-stack book management and discovery platform that allows users to explore books, search by title or author, filter by category, and maintain a personal reading list.
 
-Developed as part of my Full-Stack Developer internship, this project demonstrates practical implementation of REST APIs, authentication, authorization, database management, CRUD operations, validation, and manual API testing.
+Developed as part of my Full-Stack Developer internship, this project demonstrates practical skills in REST API development, authentication, authorization, database management, CRUD operations, input validation, and software testing.
 
 ## Features
 
 ### User Features
-
-* User registration and login
-* JWT-based authentication
-* Browse available books
-* Search books by title or author
-* Filter books by category
-* Paginated book listings
-* View individual book details
-* Add books to a personal reading list
-* Update reading status
-* Add ratings and reviews
-* Remove books from the reading list
-* View and edit profile information
-* Change account password
+- Register and log in
+- JWT-based authentication
+- Browse and search books by title or author
+- Filter books by category
+- View paginated book listings and individual book details
+- Add and remove books from a personal reading list
+- Track reading progress using `WANT_TO_READ`, `CURRENTLY_READING`, and `READ`
+- Add ratings and reviews
+- View and update profile information
+- Change account password
 
 ### Admin Features
-
-* Admin authentication and authorization
-* Add, update, and delete books
-* Create, update, and delete categories
+- Admin authentication and authorization
+- Create, update, and delete books
+- Create, update, and delete categories
 
 ## Tech Stack
 
-### Frontend
+**Frontend**
+- React
+- Vite
+- React Router
+- Axios
+- CSS
 
-* React
-* Vite
-* React Router
-* Axios
-* CSS
+**Backend**
+- Node.js
+- Express.js
+- PostgreSQL
+- `pg` PostgreSQL client
+- JSON Web Tokens (JWT)
+- `bcryptjs`
+- CORS
+- `dotenv`
 
-### Backend
-
-* Node.js
-* Express.js
-* SQLite
-* better-sqlite3
-* JSON Web Tokens (JWT)
-* bcryptjs
-* CORS
-* dotenv
-
-### Development Tools
-
-* Visual Studio Code
-* Thunder Client
-* Git and GitHub
+**Tools**
+- Visual Studio Code
+- Thunder Client
+- Git and GitHub
 
 ## Project Structure
 
@@ -68,26 +60,23 @@ BookNest/
 │   │   ├── routes/
 │   │   ├── services/
 │   │   └── validators/
-│   ├── .gitignore
+│   ├── .env.example
 │   ├── package.json
 │   └── server.js
 ├── frontend/
 │   ├── public/
 │   ├── src/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── App.jsx
-│   │   └── main.jsx
+│   ├── .env.example
 │   ├── package.json
 │   └── vite.config.js
 └── README.md
 ```
 
-*Note: The tree shows the main directories and representative files. Refer to the repository for the complete structure.*
+*This tree shows the main directories and representative files.*
 
 ## Authentication and Authorization
 
-BookNest uses JWT-based authentication to protect user-specific and administrative operations.
+BookNest uses JSON Web Tokens (JWT) to authenticate users and protect restricted endpoints. Passwords are hashed with `bcryptjs` before being stored in the database.
 
 Protected endpoints require an access token in the request header:
 
@@ -95,76 +84,72 @@ Protected endpoints require an access token in the request header:
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-Passwords are hashed using bcryptjs before being stored in the database.
-
-### Access Levels
-
-| User Type          | Access                                   |
-| ------------------ | ---------------------------------------- |
-| Public             | Browse books and categories              |
-| Authenticated User | Manage personal reading list and profile |
-| Admin              | Manage books and categories              |
+| Access level | Permissions |
+|---|---|
+| Public | Browse books and categories; register and log in |
+| Authenticated user | Manage their reading list and profile |
+| Admin | Manage books and categories |
 
 Admin-only operations are protected by authentication and admin authorization middleware.
 
 ## API Endpoints
 
-The backend API uses the `/api` base path.
+The backend API uses `/api` as its base path.
 
 ### Authentication
 
-| Method | Endpoint             | Access        |
-| ------ | -------------------- | ------------- |
-| POST   | `/api/auth/register` | Public        |
-| POST   | `/api/auth/login`    | Public        |
-| GET    | `/api/auth/me`       | Authenticated |
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/api/auth/register` | Public |
+| POST | `/api/auth/login` | Public |
+| GET | `/api/auth/me` | Authenticated |
 
 ### Profile
 
-| Method | Endpoint                | Access        |
-| ------ | ----------------------- | ------------- |
-| GET    | `/api/profile`          | Authenticated |
-| PUT    | `/api/profile`          | Authenticated |
-| PUT    | `/api/profile/password` | Authenticated |
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/profile` | Authenticated |
+| PUT | `/api/profile` | Authenticated |
+| PUT | `/api/profile/password` | Authenticated |
 
 ### Books
 
-| Method | Endpoint         | Access |
-| ------ | ---------------- | ------ |
-| GET    | `/api/books`     | Public |
-| GET    | `/api/books/:id` | Public |
-| POST   | `/api/books`     | Admin  |
-| PUT    | `/api/books/:id` | Admin  |
-| DELETE | `/api/books/:id` | Admin  |
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/books` | Public |
+| GET | `/api/books/:id` | Public |
+| POST | `/api/books` | Admin |
+| PUT | `/api/books/:id` | Admin |
+| DELETE | `/api/books/:id` | Admin |
 
 ### Categories
 
-| Method | Endpoint              | Access |
-| ------ | --------------------- | ------ |
-| GET    | `/api/categories`     | Public |
-| GET    | `/api/categories/:id` | Public |
-| POST   | `/api/categories`     | Admin  |
-| PUT    | `/api/categories/:id` | Admin  |
-| DELETE | `/api/categories/:id` | Admin  |
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/categories` | Public |
+| GET | `/api/categories/:id` | Public |
+| POST | `/api/categories` | Admin |
+| PUT | `/api/categories/:id` | Admin |
+| DELETE | `/api/categories/:id` | Admin |
 
 ### Reading List
 
-| Method | Endpoint                | Access        |
-| ------ | ----------------------- | ------------- |
-| POST   | `/api/reading-list`     | Authenticated |
-| GET    | `/api/reading-list`     | Authenticated |
-| PUT    | `/api/reading-list/:id` | Owner only    |
-| DELETE | `/api/reading-list/:id` | Owner only    |
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/api/reading-list` | Authenticated |
+| GET | `/api/reading-list` | Authenticated |
+| PUT | `/api/reading-list/:id` | Owner only |
+| DELETE | `/api/reading-list/:id` | Owner only |
 
 ## Search, Filtering, and Pagination
 
-Books can be searched by title or author:
+Search books by title or author:
 
 ```http
 GET /api/books?search=atomic
 ```
 
-Filter books by category:
+Filter by category:
 
 ```http
 GET /api/books?category_id=1
@@ -183,94 +168,61 @@ GET /api/books?search=atomic&category_id=1&page=1&limit=10
 ```
 
 Pagination validation includes:
-
-* `page` must be a positive integer.
-* `limit` must be between 1 and 100.
-* `category_id` must be a positive integer.
-
-## Reading List
-
-Each authenticated user has an individual reading list.
-
-Supported reading statuses:
-
-* `WANT_TO_READ`
-* `CURRENTLY_READING`
-* `READ`
-
-Users can add books, update reading status, submit ratings and reviews, and remove books. Reading-list entries are associated with individual users, and duplicate entries for the same user and book are prevented.
+- `page` must be a positive integer.
+- `limit` must be between 1 and 100.
+- `category_id` must be a positive integer.
 
 ## Database Design
 
-BookNest uses SQLite with the following main tables:
+BookNest uses PostgreSQL with four main tables:
 
-* `users`
-* `books`
-* `categories`
-* `reading_list`
+- `users`
+- `books`
+- `categories`
+- `reading_list`
 
-The `reading_list` table connects users with books and stores user-specific information such as reading status, rating, and review.
-
-Reading status belongs to the reading-list entry rather than the book itself because different users can have different reading statuses for the same book.
+The `reading_list` table connects users with books and stores user-specific information such as reading status, rating, and review. Reading status belongs to the reading-list entry—not the book itself—because different users can have different reading statuses for the same book.
 
 ## Validation and Error Handling
 
-The API uses standard HTTP status codes.
+The API uses standard HTTP status codes, including:
 
-| Status | Meaning                                           |
-| ------ | ------------------------------------------------- |
-| 200    | Request successful                                |
-| 201    | Resource created                                  |
-| 400    | Invalid request                                   |
-| 401    | Authentication required or invalid authentication |
-| 403    | Insufficient permissions                          |
-| 404    | Resource not found                                |
-| 500    | Internal server error                             |
+| Status | Meaning |
+|---|---|
+| 200 | Request successful |
+| 201 | Resource created |
+| 400 | Invalid request |
+| 401 | Authentication required or invalid credentials |
+| 403 | Insufficient permissions |
+| 404 | Resource not found |
+| 500 | Internal server error |
 
-Validation and error handling cover authentication, authorization, duplicate categories, duplicate reading-list entries, invalid reading statuses, pagination parameters, category IDs, missing resources, and unauthorized reading-list modifications.
+Validation and error handling cover authentication inputs, authorization, pagination, category IDs, missing resources, invalid reading statuses, duplicate reading-list entries, and unauthorized reading-list modifications.
 
 ## Testing
 
-The API was manually tested using Thunder Client.
+The project includes automated backend tests and manual API verification.
 
-### Authentication and Authorization
+**Latest automated backend test results:**
+- 20 tests passed
+- 0 tests failed
+- Authentication and registration validation
+- Book listing, pagination, category validation, and missing-book handling
+- JWT authentication middleware
+- Admin authorization middleware
 
-* User registration and login
-* Missing and valid JWTs
-* Admin and non-admin access
-* Profile retrieval and updates
-* Password change validation
+Frontend quality checks:
+- ESLint completed without reported errors.
+- Vite production build completed successfully.
 
-### Books
-
-* Create, retrieve, update, and delete books
-* Search by title and author
-* Category filtering
-* Pagination and invalid pagination values
-* Invalid category IDs and missing books
-
-### Categories
-
-* Create, retrieve, update, and delete categories
-* Duplicate category prevention
-* Admin authorization
-
-### Reading List
-
-* Add and retrieve books
-* Update reading status
-* Add ratings and reviews
-* Remove books
-* Duplicate entry prevention
-* Invalid status and missing-book handling
-* Unauthorized update and delete attempts
+Manual API checks have also covered registration, login, JWT-protected access, categories, book listings, and CORS preflight behavior.
 
 ## Setup and Installation
 
 ### Prerequisites
-
-* Node.js and npm
-* Git
+- Node.js and npm
+- Git
+- A PostgreSQL database
 
 ### 1. Clone the repository
 
@@ -279,91 +231,109 @@ git clone https://github.com/Satyavati05/BookNest.git
 cd BookNest
 ```
 
-### 2. Install backend dependencies
+### 2. Configure the backend
 
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file inside the `backend` directory:
+Create a `.env` file inside the `backend` directory using `.env.example` as a reference.
+
+Configure these variables with your own values:
 
 ```env
 PORT=5000
+DATABASE_URL=your_postgresql_connection_string
 JWT_SECRET=replace_with_a_strong_random_secret
+FRONTEND_URL=http://localhost:5173
 ```
 
-Use a strong, private JWT secret. Never commit your `.env` file or expose your actual secret publicly.
+- `DATABASE_URL` must point to a PostgreSQL database with the required BookNest schema.
+- `JWT_SECRET` must be a strong, private secret.
+- `FRONTEND_URL` should match the frontend origin allowed to access the API.
+
+**Never commit your actual `.env` file or expose database credentials or JWT secrets.** The application verifies the database connection and schema during startup; it does not automatically create the database schema.
 
 Start the backend:
 
 ```bash
-node server.js
+npm start
 ```
 
-The API should run at `http://localhost:5000`.
+The API uses `http://localhost:5000` by default.
 
-### 3. Install frontend dependencies
+### 3. Configure and start the frontend
 
-Open a second terminal from the repository root:
+Open a second terminal at the repository root:
 
 ```bash
 cd frontend
 npm install
+```
+
+Create a `frontend/.env` file using `frontend/.env.example` as a reference:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Start the development server:
+
+```bash
 npm run dev
 ```
 
 Open the local URL displayed by Vite, usually `http://localhost:5173`.
 
-The frontend communicates with the backend at `http://localhost:5000/api`.
+### 4. Run quality checks
 
-### 4. Build the frontend
+Backend tests:
 
-From the `frontend` directory, run:
+```bash
+cd backend
+npm test
+```
+
+Frontend lint:
+
+```bash
+cd frontend
+npm run lint
+```
+
+Frontend production build:
 
 ```bash
 npm run build
 ```
 
-Vite generates the production build in the `dist` directory.
+The production frontend files are generated in `frontend/dist/`.
 
-## Future Improvements
+## Deployment Status
 
-* Automated unit and integration tests
-* Deployment of the frontend and backend
-* Expanded API documentation
-* Additional accessibility and responsive-design improvements
+Deployment is a separate step from local development and production-build verification. Before deploying, configure the production PostgreSQL connection and JWT secret on the backend host, set `FRONTEND_URL` to the deployed frontend origin, and set `VITE_API_URL` to the deployed backend API URL ending in `/api`.
+
+Do not put secrets in frontend environment variables or commit production credentials to GitHub.
+
+## Internship Tasks and Documentation
+
+### Task 3 — BookNest Project Development
+
+[View Task 3 Report](https://canva.link/k8tv7763ileepps)
+
+### Task 4 — Testing and Quality Assurance
+
+[View Task 4 Report](https://canva.link/cpcfbt6zma1z893)
+
+The Task 4 report documents automated backend tests, API validation, authentication and authorization checks, reading-list functionality, and responsive UI testing.
 
 ## Author
 
 **Satyavati Thakur**
 
-[GitHub – Satyavati05](https://github.com/Satyavati05)
-
-
-## Task 4: Testing and Quality Assurance
-
-Completed testing of BookNest, including automated backend tests,
-API validation, authentication and authorization, reading-list
-functionality, and responsive UI checks.
-
-- Automated tests: 20 passed, 0 failed
-- Manual API and role-based access testing
-- Reading-list persistence and duplicate prevention
-- Mobile UI inspection at 375 × 812 px
-
-## Internship Tasks & Documentation
-
-### Task 3 — BookNest Project Development
-Project development documentation and deliverables.
-
-[View Task 3 Report](https://canva.link/k8tv7763ileepps)
-
-### Task 4 — Testing & Quality Assurance
-Documentation of automated backend tests, API validation, authentication and authorization checks, reading-list functionality, and responsive UI testing.
-
-[View Task 4 Report](https://canva.link/cpcfbt6zma1z893)
+[GitHub — Satyavati05](https://github.com/Satyavati05)
 
 ---
 
-*BookNest was built as a hands-on full-stack learning project focused on developing practical backend, frontend, database, and API development skills.*
+*BookNest is a hands-on full-stack learning project focused on practical frontend development, backend APIs, relational database management, authentication, and software quality assurance.*
