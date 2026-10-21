@@ -310,11 +310,16 @@ npm run build
 
 The production frontend files are generated in `frontend/dist/`.
 
-## Deployment Status
+## Deployment
+BookNest is deployed and accessible online. The React frontend is hosted on Vercel, the Express.js backend is hosted on Render, and PostgreSQL is used for persistent data storage.
 
-Deployment is a separate step from local development and production-build verification. Before deploying, configure the production PostgreSQL connection and JWT secret on the backend host, set `FRONTEND_URL` to the deployed frontend origin, and set `VITE_API_URL` to the deployed backend API URL ending in `/api`.
+- **Live Application:** https://book-nest-theta-opal.vercel.app/
+- **Backend API:** https://booknest-api-yc42.onrender.com
+- **Books API:** https://booknest-api-yc42.onrender.com/api/books
+- **Categories API:** https://booknest-api-yc42.onrender.com/api/categories
 
-Do not put secrets in frontend environment variables or commit production credentials to GitHub.
+The production backend uses environment variables for database connectivity, JWT authentication, and frontend CORS configuration. The deployed application has been manually tested for registration, login, logout, book browsing, categories, book details, reading-list persistence, admin authorization, and admin book/category management.
+
 
 ## Internship Tasks and Documentation
 
