@@ -333,6 +333,12 @@ The production backend uses environment variables for database connectivity, JWT
 
 The Task 4 report documents automated backend tests, API validation, authentication and authorization checks, reading-list functionality, and responsive UI testing.
 
+### Task 5 — Deployment and Production
+
+[View Task 5 Report](https://canva.link/kp1256uui5wq0lq)
+
+The Task 5 report documents BookNest's production deployment, hosting architecture, environment configuration, CORS and routing fixes, and manual verification of key user and admin workflows.
+
 ## Author
 
 **Satyavati Thakur**
