@@ -47,6 +47,9 @@ async function addBook(bookData, userId) {
         ...bookData,
         title: title.trim(),
         author: author.trim(),
+        isbn: typeof bookData.isbn === "string" && !bookData.isbn.trim()
+        ? null
+        : bookData.isbn ?? null,
         category_id: categoryId,
         added_by_user_id: userId
     });
