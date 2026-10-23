@@ -113,7 +113,7 @@ useEffect(() => {
         const payload = {
             title: form.title.trim(),
             author: form.author.trim(),
-            isbn: form.isbn.trim(),
+            isbn: form.isbn.trim() || null,
             description: form.description.trim(),
             cover_image_url: form.cover_image_url.trim(),
             publication_year: form.publication_year ? year : null,
