@@ -354,6 +354,13 @@ The Task 4 report documents automated backend tests, API validation, authenticat
 
 The Task 5 report documents BookNest's production deployment, hosting architecture, environment configuration, CORS and routing fixes, and manual verification of key user and admin workflows.
 
+### Task 6 — Final Project and Assessment
+
+[View Task 6 Final Project Report](https://canva.link/gbqk13dfn4nmlhy)
+
+The final capstone report consolidates BookNest's project scope, architecture, database design, API workflow, implementation phases, authentication and authorization, deployment, testing results, the ISBN-normalization regression fix, limitations, and lessons learned. It also identifies evidence and follow-up work without claiming that uncompleted monitoring, backup/restore, rollback, or end-to-end testing has been completed.
+
+
 ## Author
 
 **Satyavati Thakur**
