@@ -201,21 +201,36 @@ Validation and error handling cover authentication inputs, authorization, pagina
 
 ## Testing
 
-The project includes automated backend tests and manual API verification.
+BookNest uses automated backend tests, frontend quality checks, and manual verification of deployed workflows.
 
-**Latest automated backend test results:**
-- 20 tests passed
+**Latest automated backend test results**
+- 23 tests passed
 - 0 tests failed
-- Authentication and registration validation
+
+The backend test suite covers:
+- Registration and login input validation
 - Book listing, pagination, category validation, and missing-book handling
-- JWT authentication middleware
-- Admin authorization middleware
+- JWT authentication and admin authorization middleware
+- ISBN normalization before book creation:
+  - Empty ISBN values are converted to `null`.
+  - Whitespace-only ISBN values are converted to `null`.
+  - Valid ISBN values are preserved.
 
-Frontend quality checks:
+**Frontend quality checks**
 - ESLint completed without reported errors.
-- Vite production build completed successfully.
+- The Vite production build completed successfully.
 
-Manual API checks have also covered registration, login, JWT-protected access, categories, book listings, and CORS preflight behavior.
+**Manual production verification**
+- Registration and login
+- Book browsing and search
+- Reading-list status changes
+- Admin dashboard access and category management
+- Restriction of admin functionality for regular users
+- Creation of two different books without ISBN values
+
+The ISBN regression was tested after deploying the backend fix to Render. The two books were created successfully without the previous duplicate-ISBN error.
+
+Automated unit tests and manual production checks serve different purposes; passing unit tests does not by itself guarantee that every deployed workflow is error-free.
 
 ## Setup and Installation
 
